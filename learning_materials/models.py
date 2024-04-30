@@ -28,7 +28,7 @@ class Lesson(models.Model):
                                 )
     video_link = models.URLField(verbose_name="ссылка на видео", **NULL)
 
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="lesson")
 
     class Meta:
         verbose_name = "урок"

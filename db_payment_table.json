@@ -1,0 +1,38 @@
+[
+  {
+    "model": "learning_materials.payment",
+    "pk": 1,
+    "fields": {
+      "payment_date": "2024-04-30T10:49:27.694Z",
+      "amount": "2344.34000000",
+      "method": "CASH",
+      "lesson": 3,
+      "course": null,
+      "user": 1
+    }
+  },
+  {
+    "model": "learning_materials.payment",
+    "pk": 2,
+    "fields": {
+      "payment_date": "2024-04-30T10:50:28.961Z",
+      "amount": "18990.99000000",
+      "method": "TRNS",
+      "lesson": null,
+      "course": 2,
+      "user": 1
+    }
+  },
+  {
+    "model": "learning_materials.payment",
+    "pk": 3,
+    "fields": {
+      "payment_date": "2024-04-30T10:51:08.717Z",
+      "amount": "189900.99000000",
+      "method": "CASH",
+      "lesson": null,
+      "course": 2,
+      "user": 1
+    }
+  }
+]

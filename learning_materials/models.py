@@ -1,9 +1,19 @@
 from django.db import models
+from django.contrib.auth import get_user_model
+
+
+User = get_user_model()
+
 
 NULL = {
     "null": True,
     "blank": True,
 }
+
+
+class PaymentMethodChoices(models.TextChoices):
+    IN_CASH = "CASH", "payment in cash"
+    TRANSFER = "TRNS",  "payment by transfer to the account"
 
 
 class Course(models.Model):
@@ -33,3 +43,21 @@ class Lesson(models.Model):
     class Meta:
         verbose_name = "урок"
         verbose_name_plural = "уроки"
+
+
+class Payment(models.Model):
+    payment_date = models.DateTimeField(auto_now_add=True, verbose_name="дата оплаты")
+    amount = models.DecimalField(max_digits=16, decimal_places=8, verbose_name="сумма оплаты")
+    method = models.CharField(max_length=4, choices=PaymentMethodChoices, verbose_name="способ оплаты")
+
+    lesson = models.ForeignKey(Lesson,
+                               on_delete=models.CASCADE,
+                               **NULL,
+                               verbose_name="оплаченный урок",
+                               related_name="payment")
+    course = models.ForeignKey(Course,
+                               on_delete=models.CASCADE,
+                               **NULL,
+                               verbose_name="оплаченный курс",
+                               related_name="payment")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="пользователь")

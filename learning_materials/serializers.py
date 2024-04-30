@@ -18,3 +18,9 @@ class CourseSerializer(serializers.ModelSerializer):
 
     def get_lessons_amount(self, obj):
         return obj.lesson.count()
+
+
+class PaymentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Payment
+        fields = '__all__'

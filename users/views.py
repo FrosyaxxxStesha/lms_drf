@@ -9,6 +9,9 @@ User = get_user_model()
 
 
 class UserCreateAPIView(generics.CreateAPIView):
+    """
+    Создание пользователя. Хэширует пароль перед созданием пользователя
+    """
     permission_classes = [~IsAuthenticated]
     serializer_class = serializers.UserSerializer
 
@@ -19,23 +22,35 @@ class UserCreateAPIView(generics.CreateAPIView):
 
 
 class UserListAPIView(generics.ListAPIView):
+    """
+    Просмотр списка пользователей
+    """
     permission_classes = [IsAuthenticated]
     serializer_class = serializers.UserSerializer
     queryset = User.objects.all()
 
 
 class UserRetrieveAPIView(generics.RetrieveAPIView):
+    """
+    Получение одного пользователя
+    """
     permission_classes = [IsAuthenticated]
     serializer_class = serializers.UserSerializer
     queryset = User.objects.all()
 
 
 class UserUpdateAPIView(generics.UpdateAPIView):
+    """
+    Редактирование пользователя
+    """
     permission_classes = [IsAuthenticated]
     serializer_class = serializers.UserSerializer
     queryset = User.objects.all()
 
 
 class UserDestroyAPIView(generics.DestroyAPIView):
+    """
+    Удаление пользователя
+    """
     permission_classes = [IsAuthenticated]
     queryset = User.objects.all()

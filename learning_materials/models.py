@@ -23,6 +23,10 @@ class Course(models.Model):
                                 verbose_name="превью фото",
                                 )
     description = models.TextField(verbose_name="описание")
+    user = models.ForeignKey(User,
+                             on_delete=models.CASCADE,
+                             related_name="course",
+                             verbose_name="пользователь")
 
     class Meta:
         verbose_name = "курс"
@@ -39,6 +43,10 @@ class Lesson(models.Model):
     video_link = models.URLField(verbose_name="ссылка на видео", **NULL)
 
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="lesson")
+    user = models.ForeignKey(User,
+                             on_delete=models.CASCADE,
+                             related_name="lesson",
+                             verbose_name="пользователь")
 
     class Meta:
         verbose_name = "урок"

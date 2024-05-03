@@ -29,7 +29,7 @@ class CourseViewSet(CreationWithOwnerMixin, viewsets.ModelViewSet):
             self.permission_classes = [IsModerator | OwnerListOnly]
         elif self.action == "create":
             self.permission_classes = [~IsModerator]
-        elif self.action == "delete":
+        elif self.action == "destroy":
             self.permission_classes = [IsOwner]
         else:
             self.permission_classes = [IsOwner | IsModerator]

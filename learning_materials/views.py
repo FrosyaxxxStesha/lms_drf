@@ -3,7 +3,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import response
 
-from learning_materials import serializers, models
+from learning_materials import serializers, models, paginators
 from django_filters import rest_framework
 
 from learning_materials.permissions import IsModerator, IsOwner, OwnerListOnly
@@ -25,6 +25,7 @@ class CourseViewSet(CreationWithOwnerMixin, viewsets.ModelViewSet):
     permission_classes = [IsOwner | IsModerator]
     serializer_class = serializers.CourseSerializer
     queryset = models.Course.objects.all().prefetch_related("subscription")
+    pagination_class = paginators.CoursePaginator
 
     def get_permissions(self):
         if self.action == "list":
@@ -53,6 +54,7 @@ class LessonListAPIView(generics.ListAPIView):
     permission_classes = [IsAuthenticated, IsModerator | OwnerListOnly]
     serializer_class = serializers.LessonSerializer
     queryset = models.Lesson.objects.all()
+    pagination_class = paginators.LessonPaginator
 
 
 class LessonRetrieveAPIView(generics.RetrieveAPIView):

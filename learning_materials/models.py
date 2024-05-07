@@ -125,3 +125,39 @@ class Payment(models.Model):
                              verbose_name="пользователь",
                              help_text="ссылка на модель пользователя"
                              )
+
+    class Meta:
+        verbose_name = "платёж"
+        verbose_name_plural = "платежи"
+
+
+class Subscription(models.Model):
+    """
+    Модель подписки на обновления курса,
+    содержит в себе ссылки на :model:`learning_materials.Course` - курс
+    и :model:`users.User` - подписавшийся пользователь
+    """
+    course = models.ForeignKey(Course,
+                               related_name="subscription",
+                               on_delete=models.CASCADE,
+                               verbose_name="курс",
+                               help_text="курс на который была оформлена подписка"
+                               )
+
+    user = models.ForeignKey(User,
+                             on_delete=models.CASCADE,
+                             verbose_name="пользователь, оформивший подписку",
+                             help_text="пользователь, оформивший подписку на курс"
+                             )
+
+    since = models.DateTimeField(auto_now_add=True,
+                                 verbose_name="время подписки",
+                                 help_text="время, с которого пользователь подписан на курс"
+                                 )
+
+    class Meta:
+        verbose_name = "подписка"
+        verbose_name_plural = "подписки"
+        constraints = [
+            models.UniqueConstraint(fields=["course", "user"], name="unique_subscription")
+        ]

@@ -1,9 +1,11 @@
-from rest_framework import viewsets, generics, filters
+from rest_framework import viewsets, generics, filters, views
+from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
+from rest_framework import response
 
-from learning_materials import serializers
-from learning_materials import models
+from learning_materials import serializers, models
 from django_filters import rest_framework
+
 from learning_materials.permissions import IsModerator, IsOwner, OwnerListOnly
 
 
@@ -22,7 +24,7 @@ class CourseViewSet(CreationWithOwnerMixin, viewsets.ModelViewSet):
     """
     permission_classes = [IsOwner | IsModerator]
     serializer_class = serializers.CourseSerializer
-    queryset = models.Course.objects.all()
+    queryset = models.Course.objects.all().prefetch_related("subscription")
 
     def get_permissions(self):
         if self.action == "list":
@@ -90,3 +92,25 @@ class PaymentListAPIView(generics.ListAPIView):
     filter_backends = [filters.OrderingFilter, rest_framework.DjangoFilterBackend]
     filterset_fields = ['method', 'lesson', 'course']
     ordering_fields = ['payment_date']
+
+
+class SubscriptionAlterAPIView(views.APIView):
+
+    def post(self, *args, **kwargs):
+        user = self.request.user
+        course = get_object_or_404(models.Course.objects.filter(pk=self.request.data.get("course")))
+        subscription_data = {
+            "user": user,
+            "course": course
+        }
+
+        is_subscribed = models.Subscription.objects.filter(**subscription_data).exists()
+
+        if is_subscribed:
+            models.Subscription.objects.get(**subscription_data).delete()
+            message = "unsubscribed"
+        else:
+            models.Subscription.objects.create(**subscription_data)
+            message = "subscribed"
+
+        return response.Response({"message": message})

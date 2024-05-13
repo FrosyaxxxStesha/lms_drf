@@ -1,3 +1,5 @@
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import viewsets, generics, filters, views
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
@@ -97,7 +99,37 @@ class PaymentListAPIView(generics.ListAPIView):
 
 
 class SubscriptionAlterAPIView(views.APIView):
+    """
+    Подписка или отписка на курс для текущего авторизованного пользователя
+    (переключает статус: если пользователь был подписан на курс до запроса - отписывает его,
+    если не был подписан - подписывает)
+    """
+    @swagger_auto_schema(
+        responses={200: openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                description="response message, can contain \"subscribed\" or \"unsubscribed\"",
+                properties={
+                    "message": openapi.Schema(
+                        type=openapi.TYPE_STRING,
+                        description="string of response message",
+                        example="subscribed"
+                    )
+                }
 
+            )
+        },
+        request_body=openapi.Schema(
+                type=openapi.TYPE_OBJECT, description='course for altering subscription status',
+                properties={
+                    'course': openapi.Schema(
+                        type=openapi.TYPE_STRING,
+                        description='course for subscription / unsubscription id',
+                        example="1"
+                    ),
+                }
+            ),
+
+    )
     def post(self, *args, **kwargs):
         user = self.request.user
         course = get_object_or_404(models.Course.objects.filter(pk=self.request.data.get("course")))

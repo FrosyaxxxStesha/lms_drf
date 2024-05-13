@@ -16,6 +16,10 @@ class LessonViewnames(str, Enum):
     destroy = "learning_materials:lesson_destroy"
 
 
+class SubscribeViewnames(str, Enum):
+    alter = "learning_materials:subscription_alter"
+
+
 class LessonAPITestCase(APITestCase):
 
     @classmethod
@@ -164,4 +168,48 @@ class LessonAPITestCase(APITestCase):
         self.assertEqual(
             response.status_code,
             status.HTTP_204_NO_CONTENT
+        )
+
+
+class SubscriptionAPITestCase(APITestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = User(email="test@mail.com")
+        cls.user.set_password("1234")
+        cls.user.save()
+
+        cls.subscriber = User(email="subscriber@mail.com")
+        cls.subscriber.set_password("1234")
+        cls.subscriber.save()
+
+        cls.viewnames = SubscribeViewnames
+
+        cls.course = models.Course.objects.create(title="test", description="test_description", user=cls.user)
+
+        cls.factory = APIRequestFactory()
+
+    def test_alter(self):
+
+        data = {"course": 2}
+        request = self.factory.post(reverse(self.viewnames.alter), data=data, format="json")
+        view = views.SubscriptionAlterAPIView.as_view()
+
+        force_authenticate(request, self.subscriber)
+
+        response = view(request)
+
+        self.assertEqual(
+            response.data,
+            {"message": "subscribed"}
+        )
+
+        data = {"course": 2}
+
+        request = self.factory.post(reverse(self.viewnames.alter), data=data, format="json")
+        force_authenticate(request, self.subscriber)
+        response = view(request)
+
+        self.assertEqual(
+            response.data,
+            {"message": "unsubscribed"}
         )

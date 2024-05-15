@@ -9,6 +9,7 @@ from learning_materials import serializers, models, paginators
 from django_filters import rest_framework
 
 from learning_materials.permissions import IsModerator, IsOwner, OwnerListOnly
+from learning_materials.services import create_product, create_price, create_session
 
 
 class CreationWithOwnerMixin:
@@ -96,6 +97,25 @@ class PaymentListAPIView(generics.ListAPIView):
     filter_backends = [filters.OrderingFilter, rest_framework.DjangoFilterBackend]
     filterset_fields = ['method', 'lesson', 'course']
     ordering_fields = ['payment_date']
+
+
+class PaymentRetrieveAPIView(generics.RetrieveAPIView):
+    serializer_class = serializers.PaymentSerializer
+    queryset = models.Payment.objects.all()
+
+
+class PaymentCreateAPIView(generics.CreateAPIView):
+    serializer_class = serializers.PaymentSerializer
+    queryset = models.Payment.objects.all()
+
+    def perform_create(self, serializer):
+        payment = serializer.save(user=self.request.user, method="перевод на карту")
+        product = create_product(payment.course)
+        price = create_price(product=product, amount=payment.amount)
+        session_id, session_url = create_session(price)
+        payment.session_id = session_id
+        payment.payment_link = session_url
+        payment.save()
 
 
 class SubscriptionAlterAPIView(views.APIView):

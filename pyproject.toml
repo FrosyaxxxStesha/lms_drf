@@ -17,6 +17,8 @@ docutils = "^0.21.2"
 requests = "^2.31.0"
 drf-yasg = "^1.21.7"
 stripe = "^9.6.0"
+celery = "^5.4.0"
+django-celery-beat = "^2.6.0"
 
 
 [build-system]

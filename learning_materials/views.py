@@ -5,7 +5,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import response
 
-from learning_materials import serializers, models, paginators
+from learning_materials import serializers, models, paginators, tasks
 from django_filters import rest_framework
 
 from learning_materials.permissions import IsModerator, IsOwner, OwnerListOnly
@@ -40,6 +40,10 @@ class CourseViewSet(CreationWithOwnerMixin, viewsets.ModelViewSet):
         else:
             self.permission_classes = [IsOwner | IsModerator]
         return [permission() for permission in [IsAuthenticated] + self.permission_classes]
+
+    def perform_update(self, serializer):
+        self.course = serializer.save()
+        tasks.course_updated_notification.delay(id=self.course.id)
 
 
 class LessonCreateAPIView(CreationWithOwnerMixin, generics.CreateAPIView):

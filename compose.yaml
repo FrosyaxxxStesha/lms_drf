@@ -1,0 +1,82 @@
+version: "2.27.0"
+services:
+  database:
+    tty: true
+    image: postgres:15
+    restart: on-failure
+
+    env_file:
+      - .env
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+
+  django_app:
+    tty: true
+    build: .
+
+    environment:
+      DATABASE: database
+      BROKER: broker
+    env_file:
+      - .env
+    depends_on:
+      database:
+        condition:
+          service_healthy
+    ports:
+      - 5000:5000
+
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:5000"
+
+
+  broker:
+    tty: true
+    image: redis
+    restart: on-failure
+
+    expose:
+      - 6379
+
+
+  celery:
+    tty: true
+    build: .
+    restart: on-failure
+
+    env_file:
+      - .env
+    environment:
+      DATABASE: database
+      BROKER: broker
+    depends_on:
+      - broker
+
+    command: celery -A conf worker -l INFO
+
+
+  celery-beat:
+    tty: true
+    build: .
+    restart: on-failure
+
+    environment:
+      DATABASE: database
+      BROKER: broker
+    env_file:
+      - .env
+    depends_on:
+      - django_app
+      - celery
+
+    command: celery -A conf beat -l info
+
+
+volumes:
+  pg_data:
+    driver: local
